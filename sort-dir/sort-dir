@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+
+def parse_config
+  $config = File.open('.sorter', 'a+')
+  configurations = {}
+  $config.each_line do | line |
+    split = line.split(':')
+    configurations[split[0]] = split[1].split(' ')
+  end
+  $config.close
+  return configurations
+end
+
+def add_to_config(directory, ext)
+  config = parse_config
+  if config.has_key?(directory) && !check_ext_exists(ext)
+    config[directory].push(ext)
+  elsif check_ext_exists(ext)
+    puts "#{ext} files are already set to be stored in #{config.find { |k,v| v.include?(ext) }[0]}"
+  else
+    config[directory] = [ext]
+  end
+  save_config config
+end
+
+def check_ext_exists ext
+  # return true if extension is in config
+  config = parse_config
+  return config.any? {|k, v| v.include?(ext)}
+end
+
+def save_config new_config
+  $config = File.open('.sorter', 'r+')
+
+  new_config.each do | k, v |
+    $config.write("#{k}:#{v.join(' ')}\n")
+  end
+
+  $config.close
+end
+
+def print_config
+  config = parse_config
+  puts "---------------------------------"
+  puts "----- Current configuration -----"
+  puts "---------------------------------"
+  config.each_with_index do | (dir, exts), i |
+    puts "#{i + 1}: #{dir} -- #{exts.join(' ')}"
+  end
+  puts "---------------------------------"
+end
+
+def check_dir
+  puts "Checking files in directory"
+  extensions = Dir.glob('*').map {|file| File.extname(file)}.uniq
+
+  extensions.each do | ext |
+    config = parse_config
+    if !check_ext_exists(ext)
+      files_found = Dir.glob('*' + ext)
+      puts "Found extension '#{ext}' with #{files_found.count} files in current directory"
+      puts "Do you want to sort #{ext} files? (y/n)"
+      answer = gets.chomp
+      if answer.empty? or answer[0].downcase == 'y'
+        print_config
+        puts "Which directory do you want to sort #{ext} files?"
+        puts "Choose from above or enter a new directory"
+        directory = gets.chomp
+        if directory.to_i > 0
+          directory = config.to_a[directory.to_i - 1][0]
+        end
+        if !directory.empty?
+          add_to_config(directory, ext)
+        end
+      end
+
+    end
+  end
+  puts ""
+  puts "Done checking files in directory"
+  puts ""
+end
+
+def run_sort
+  puts ""
+  puts ""
+  puts "Running sort command"
+  puts ""
+  puts ""
+  config = parse_config
+  config.keys.each do | dir |
+    config[dir].each {|ext| sort_file(ext, dir)}
+  end
+end
+
+def sort_file(extension, dest)
+  if !Dir.exist?(dest)
+    puts ""
+    puts "Directory '#{dest}' does not exist..."
+    puts "Creating #{Dir.pwd}/#{dest}"
+    Dir.mkdir(dest)
+  end
+  Dir.glob('*' + extension).each do | file |
+    puts "Moving #{file} to #{dest}/#{file}"
+    File.rename(file, "#{dest}/#{file}")
+  end
+
+end
+
+check_dir
+run_sort
