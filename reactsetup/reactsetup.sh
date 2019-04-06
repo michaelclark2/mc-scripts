@@ -6,7 +6,7 @@ mv src/index.css src/styles
 cat src/styles/index.css >> src/styles/index.scss
 cat src/app/App.css >> src/app/App.scss
 find ./src -type f -name '*.css' -delete
-cp ~/workspace/scripts/reactsetup/.eslintrc .
+cp ~/workspace/scripts/reactsetup/.eslintrc.js .
 sed -i 's:App.css:App.scss:' src/app/App.js
 sed -i 's:index.css:styles/index.scss:' src/index.js
 sed -i 's:./App:./app/App:' src/index.js

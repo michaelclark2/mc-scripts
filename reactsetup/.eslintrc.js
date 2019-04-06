@@ -1,4 +1,4 @@
-{
+module.exports = {
   "extends": "react-app",
   "env": {
     "es6": true,
