@@ -1,0 +1,14 @@
+import React from 'react';
+import './${component}.scss';
+
+const ${component} = (props) => {
+
+  return (
+    <div className='${component}'>
+      { props.children }
+    </div>
+  );
+
+};
+
+export default ${component};

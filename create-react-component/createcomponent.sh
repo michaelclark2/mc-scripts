@@ -1,13 +1,11 @@
 #!/bin/sh
 
+DIR="${0%/*}"
+
 template () {
   eval "echo \"$(cat $1)\""
 }
 
-find_source () {
-  SOURCE="${BASH_SOURCE[0]}"
-  eval "echo $(dirname $SOURCE)"
-}
 
 if [ ! -d src ]; then
   echo "src directory not found."
@@ -21,14 +19,39 @@ if [ ! -d src/components ]; then
   echo "Created src/components directory."
 fi
 
+while getopts ":fc" opt; do
+  case ${opt} in
+    f )
+    TYPE="function"
+    ;;
+    c )
+    TYPE="class"
+    ;;
+    \? )
+    echo "Usage: rc [ -c | -f ] components"
+    exit 1
+    ;;
+
+  esac
+done
+
 for c in $@
 do
-  component=$c
+  if [[ ! $c =~ -.* ]]; then
+    component="${c^}"
 
-  mkdir src/components/$c
-  touch src/components/$c/$c.{js,scss}
-  template $(find_source)/react_template.txt > src/components/$c/$c.js
-  template $(find_source)/react_css.txt > src/components/$c/$c.scss
-  echo "Created $c component in src/components/$c"
+    mkdir src/components/$component
+
+    case $TYPE in
+      function )
+        template $DIR/react_template_f.txt > src/components/$component/$component.jsx
+      ;;
+      class )
+        template $DIR/react_template.txt > src/components/$component/$component.jsx
+      ;;
+    esac
+    template $DIR/react_css.txt > src/components/$component/$component.scss
+    echo "Created $component component in src/components/$component"
+  fi
 
 done
