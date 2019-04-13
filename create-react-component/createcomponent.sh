@@ -38,20 +38,20 @@ done
 for c in $@
 do
   if [[ ! $c =~ -.* ]]; then
-    component=$c
+    component="${c^}"
 
-    mkdir src/components/$c
+    mkdir src/components/$component
 
     case $TYPE in
       function )
-        template $DIR/react_template_f.txt > src/components/$c/$c.jsx
+        template $DIR/react_template_f.txt > src/components/$component/$component.jsx
       ;;
       class )
-        template $DIR/react_template.txt > src/components/$c/$c.jsx
+        template $DIR/react_template.txt > src/components/$component/$component.jsx
       ;;
     esac
-    template $DIR/react_css.txt > src/components/$c/$c.scss
-    echo "Created $c component in src/components/$c"
+    template $DIR/react_css.txt > src/components/$component/$component.scss
+    echo "Created $component component in src/components/$component"
   fi
 
 done
